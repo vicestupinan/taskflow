@@ -15,5 +15,5 @@ spring:
         format_sql: true
 
 jwt:
-  secret: yourSecretKeyHere
+  secret: 0aiAkgvB//KnemMxeQhjtg3Rr/pIsS5lvVQ/jBoceKw=
   expiration: 3600000

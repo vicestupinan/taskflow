@@ -1,4 +1,4 @@
-package dev.vicestupinan.taskflow.model;
+package dev.vicestupinan.taskflow.user;
 
 public enum Role {
     USER,
