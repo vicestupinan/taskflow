@@ -1,4 +1,4 @@
-package dev.vicestupinan.taskflow.security;
+package dev.vicestupinan.taskflow.config;
 
 import java.io.IOException;
 

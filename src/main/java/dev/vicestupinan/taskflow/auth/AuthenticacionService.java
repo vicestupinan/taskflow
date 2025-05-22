@@ -7,10 +7,13 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
-import dev.vicestupinan.taskflow.security.JwtService;
-import dev.vicestupinan.taskflow.user.Role;
-import dev.vicestupinan.taskflow.user.User;
-import dev.vicestupinan.taskflow.user.UserRepository;
+import dev.vicestupinan.taskflow.auth.dto.AuthenticationRequest;
+import dev.vicestupinan.taskflow.auth.dto.AuthenticationResponse;
+import dev.vicestupinan.taskflow.auth.dto.RegisterRequest;
+import dev.vicestupinan.taskflow.config.JwtService;
+import dev.vicestupinan.taskflow.user.model.Role;
+import dev.vicestupinan.taskflow.user.model.User;
+import dev.vicestupinan.taskflow.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 
 @Service

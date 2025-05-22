@@ -1,4 +1,4 @@
-package dev.vicestupinan.taskflow.user;
+package dev.vicestupinan.taskflow.user.model;
 
 import java.util.Collection;
 import java.util.List;

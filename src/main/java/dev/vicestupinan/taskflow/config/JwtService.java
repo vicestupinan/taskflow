@@ -1,4 +1,4 @@
-package dev.vicestupinan.taskflow.security;
+package dev.vicestupinan.taskflow.config;
 
 import java.security.Key;
 import java.util.Date;
@@ -51,14 +51,6 @@ public class JwtService {
 
     public boolean isTokenValid(String token, UserDetails userDetails) {
         final String username = extractUsername(token);
-        System.out.println("[JwtService] Validando token para usuario: " + username);
-
-        boolean expired = isTokenExpired(token);
-        System.out.println("[JwtService] ¿Token expirado? " + expired);
-
-        boolean valid = (username.equals(userDetails.getUsername())) && !expired;
-        System.out.println("[JwtService] ¿Token válido? " + valid);
-
         return (username.equals(userDetails.getUsername())) && !isTokenExpired(token);
     }
 

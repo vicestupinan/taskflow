@@ -1,4 +1,4 @@
-package dev.vicestupinan.taskflow.auth;
+package dev.vicestupinan.taskflow.auth.dto;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
