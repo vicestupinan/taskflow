@@ -4,18 +4,16 @@ import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
-import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
+import dev.vicestupinan.taskflow.auth.AuthenticatedUserProvider;
+import dev.vicestupinan.taskflow.exception.AccessDeniedException;
 import dev.vicestupinan.taskflow.task.dto.TaskRequest;
 import dev.vicestupinan.taskflow.task.dto.TaskResponse;
 import dev.vicestupinan.taskflow.task.mapper.TaskMapper;
 import dev.vicestupinan.taskflow.task.model.Task;
 import dev.vicestupinan.taskflow.task.repository.TaskRepository;
 import dev.vicestupinan.taskflow.user.model.User;
-import dev.vicestupinan.taskflow.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 
 @Service
@@ -23,29 +21,22 @@ import lombok.RequiredArgsConstructor;
 public class TaskService {
 
     private final TaskRepository taskRepository;
-    private final UserRepository userRepository;
     private final TaskMapper taskMapper;
-
-    public User getAuthenticatedUser() {
-        String email = ((UserDetails) SecurityContextHolder
-                .getContext()
-                .getAuthentication()
-                .getPrincipal())
-                .getUsername();
-
-        return userRepository.findByEmail(email)
-                .orElseThrow(() -> new UsernameNotFoundException("User not found"));
-    }
+    private final AuthenticatedUserProvider authenticatedUserProvider;
 
     public TaskResponse getTaskById(UUID id) {
+        User user = authenticatedUserProvider.getAuthenticatedUser();
         Task task = taskRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Task not found"));
+
+        if (!task.getUser().getId().equals(user.getId())) {
+            throw new AccessDeniedException("You do not have access to this task");
+        }
         return taskMapper.toResponse(task);
     }
 
     public TaskResponse createTask(TaskRequest request) {
-        User user = getAuthenticatedUser();
-
+        User user = authenticatedUserProvider.getAuthenticatedUser();
         Task task = Task.builder()
                 .title(request.getTitle())
                 .description(request.getDescription())
@@ -57,7 +48,8 @@ public class TaskService {
     }
 
     public List<TaskResponse> listTasks() {
-        return taskRepository.findAll()
+        User user = authenticatedUserProvider.getAuthenticatedUser();
+        return taskRepository.findByUser(user)
                 .stream()
                 .map(taskMapper::toResponse)
                 .collect(Collectors.toList());
