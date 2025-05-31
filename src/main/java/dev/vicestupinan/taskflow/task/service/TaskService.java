@@ -8,6 +8,7 @@ import org.springframework.stereotype.Service;
 
 import dev.vicestupinan.taskflow.auth.AuthenticatedUserProvider;
 import dev.vicestupinan.taskflow.exception.AccessDeniedException;
+import dev.vicestupinan.taskflow.exception.ResourceNotFoundException;
 import dev.vicestupinan.taskflow.task.dto.TaskRequest;
 import dev.vicestupinan.taskflow.task.dto.TaskResponse;
 import dev.vicestupinan.taskflow.task.mapper.TaskMapper;
@@ -24,10 +25,18 @@ public class TaskService {
     private final TaskMapper taskMapper;
     private final AuthenticatedUserProvider authenticatedUserProvider;
 
+    public List<TaskResponse> listTasks() {
+        User user = authenticatedUserProvider.getAuthenticatedUser();
+        return taskRepository.findByUser(user)
+                .stream()
+                .map(taskMapper::toResponse)
+                .collect(Collectors.toList());
+    }
+
     public TaskResponse getTaskById(UUID id) {
         User user = authenticatedUserProvider.getAuthenticatedUser();
         Task task = taskRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Task not found"));
+                .orElseThrow(() -> new ResourceNotFoundException("Task not found"));
 
         if (!task.getUser().getId().equals(user.getId())) {
             throw new AccessDeniedException("You do not have access to this task");
@@ -47,11 +56,31 @@ public class TaskService {
         return taskMapper.toResponse(task);
     }
 
-    public List<TaskResponse> listTasks() {
+    public TaskResponse updateTask(UUID id, TaskRequest request) {
         User user = authenticatedUserProvider.getAuthenticatedUser();
-        return taskRepository.findByUser(user)
-                .stream()
-                .map(taskMapper::toResponse)
-                .collect(Collectors.toList());
+        Task task = taskRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Task not found"));
+
+        if (!task.getUser().getId().equals(user.getId())) {
+            throw new AccessDeniedException("You do not have access to this task");
+        }
+
+        task.setTitle(request.getTitle());
+        task.setDescription(request.getDescription());
+        task.setTaskStatus(request.getTaskStatus());
+        taskRepository.save(task);
+        return taskMapper.toResponse(task);
+    }
+
+    public void deleteTask(UUID id) {
+        User user = authenticatedUserProvider.getAuthenticatedUser();
+        Task task = taskRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Task not found"));
+
+        if (!task.getUser().getId().equals(user.getId())) {
+            throw new AccessDeniedException("You do not have access to this task");
+        }
+
+        taskRepository.delete(task);
     }
 }
