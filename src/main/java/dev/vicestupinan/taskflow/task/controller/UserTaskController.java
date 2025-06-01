@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.UUID;
 
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -15,16 +16,17 @@ import org.springframework.web.bind.annotation.RestController;
 
 import dev.vicestupinan.taskflow.task.dto.TaskRequest;
 import dev.vicestupinan.taskflow.task.dto.TaskResponse;
-import dev.vicestupinan.taskflow.task.service.TaskService;
+import dev.vicestupinan.taskflow.task.service.UserTaskService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 
 @RestController
 @RequestMapping("/api/tasks")
+@PreAuthorize("hasRole('USER') or hasRole('ADMIN')")
 @RequiredArgsConstructor
-public class TaskController {
+public class UserTaskController {
 
-    private final TaskService taskService;
+    private final UserTaskService taskService;
 
     @GetMapping
     public ResponseEntity<List<TaskResponse>> list() {
