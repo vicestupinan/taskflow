@@ -1,6 +1,5 @@
 package dev.vicestupinan.taskflow.task.service;
 
-import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -18,6 +17,10 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 
 import dev.vicestupinan.taskflow.auth.AuthenticatedUserProvider;
 import dev.vicestupinan.taskflow.exception.AccessDeniedException;
@@ -63,21 +66,24 @@ public class UserTaskServiceTest {
         Task mockTask2 = Task.builder().id(UUID.randomUUID()).title("Task 2").user(mockUser).build();
 
         List<Task> mockTasks = List.of(mockTask1, mockTask2);
+        Page<Task> mockTaskPage = new PageImpl<>(mockTasks);
 
         TaskResponse mockResponse1 = TaskResponse.builder().id(mockTask1.getId()).title(mockTask1.getTitle()).build();
         TaskResponse mockResponse2 = TaskResponse.builder().id(mockTask2.getId()).title(mockTask2.getTitle()).build();
 
+        Pageable pageable = PageRequest.of(0, 10);
+
         when(authenticatedUserProvider.getAuthenticatedUser()).thenReturn(mockUser);
-        when(taskRepository.findByUser(mockUser)).thenReturn(mockTasks);
+        when(taskRepository.findByUser(mockUser, pageable)).thenReturn(mockTaskPage);
         when(taskMapper.toResponse(mockTask1)).thenReturn(mockResponse1);
         when(taskMapper.toResponse(mockTask2)).thenReturn(mockResponse2);
 
-        List<TaskResponse> result = userTaskService.listTasks();
+        Page<TaskResponse> result = userTaskService.listTasks(pageable);
 
-        assertEquals(2, result.size());
-        assertEquals(mockResponse1, result.get(0));
-        assertEquals(mockResponse2, result.get(1));
-        verify(taskRepository).findByUser(mockUser);
+        assertEquals(2, result.getContent().size());
+        assertEquals(mockResponse1, result.getContent().get(0));
+        assertEquals(mockResponse2, result.getContent().get(1));
+        verify(taskRepository).findByUser(mockUser, pageable);
         verify(taskMapper).toResponse(mockTask1);
         verify(taskMapper).toResponse(mockTask2);
     }
@@ -89,15 +95,16 @@ public class UserTaskServiceTest {
     @Test
     void getTasks_shouldReturnEmptyList_whenUserHasNoTasks() {
         User mockUser = User.builder().id(UUID.randomUUID()).build();
+        Pageable pageable = PageRequest.of(0, 10);
 
         when(authenticatedUserProvider.getAuthenticatedUser()).thenReturn(mockUser);
-        when(taskRepository.findByUser(mockUser)).thenReturn(Collections.emptyList());
+        when(taskRepository.findByUser(mockUser, pageable)).thenReturn(Page.empty());
 
-        List<TaskResponse> result = userTaskService.listTasks();
+        Page<TaskResponse> result = userTaskService.listTasks(pageable);
 
         assertNotNull(result);
         assertTrue(result.isEmpty());
-        verify(taskRepository).findByUser(mockUser);
+        verify(taskRepository).findByUser(mockUser, pageable);
         verifyNoInteractions(taskMapper);
     }
 

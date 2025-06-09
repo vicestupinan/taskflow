@@ -1,9 +1,9 @@
 package dev.vicestupinan.taskflow.task.service;
 
-import java.util.List;
 import java.util.UUID;
-import java.util.stream.Collectors;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -30,13 +30,11 @@ public class UserTaskService implements TaskService {
 
     @Override
     @Transactional(readOnly = true)
-    public List<TaskResponse> listTasks() {
+    public Page<TaskResponse> listTasks(Pageable pageable) {
         User user = authenticatedUserProvider.getAuthenticatedUser();
         log.info("Listing tasks for user: {}", user.getId());
-        return taskRepository.findByUser(user)
-                .stream()
-                .map(taskMapper::toResponse)
-                .collect(Collectors.toList());
+        return taskRepository.findByUser(user, pageable)
+                .map(taskMapper::toResponse);
     }
 
     @Override

@@ -1,9 +1,9 @@
 package dev.vicestupinan.taskflow.task.service;
 
-import java.util.List;
 import java.util.UUID;
-import java.util.stream.Collectors;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import dev.vicestupinan.taskflow.auth.AuthenticatedUserProvider;
@@ -25,11 +25,9 @@ public class AdminTaskService implements TaskService {
     private final AuthenticatedUserProvider authenticatedUserProvider;
 
     @Override
-    public List<TaskResponse> listTasks() {
-        return taskRepository.findAll()
-                .stream()
-                .map(taskMapper::toResponse)
-                .collect(Collectors.toList());
+    public Page<TaskResponse> listTasks(Pageable pageable) {
+        return taskRepository.findAll(pageable)
+                .map(taskMapper::toResponse);
     }
 
     @Override
