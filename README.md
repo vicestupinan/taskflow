@@ -37,7 +37,7 @@ GET /tasks?page=1&size=5&sortBy=taskStatus&direction=desc
 --- 
 
 ## ⚙️ Configuration
-Update your `application.properties` to configure your database and other settings.
+Update your `application.yml` to configure your database and other settings.
 
 # Build the project
 mvn clean install
