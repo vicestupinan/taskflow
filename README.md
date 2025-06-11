@@ -6,6 +6,7 @@ This is a Spring Boot REST API for managing tasks. It supports basic CRUD operat
 
 ## 🚀 Features
 - Create, read, update, and delete tasks.
+- Authentication and authorization using JWT.
 - Transactional service support.
 - Pagination for task listing.
 - Standard RESTful API structure.
@@ -18,6 +19,17 @@ This is a Spring Boot REST API for managing tasks. It supports basic CRUD operat
 - Spring Data JPA
 - PostgreSQL
 - Maven
+
+---
+
+## 🔐 Authentication
+The API uses JWT for secure authentication. To access protected endpoints, you must:
+
+- Authenticate using the login endpoint to receive a JWT token.
+- Include the token in the Authorization header for subsequent requests.
+
+Example:
+Authorization: Bearer your-jwt-token
 
 ---
 
